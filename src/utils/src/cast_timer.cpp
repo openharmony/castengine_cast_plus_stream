@@ -1,13 +1,7 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * Copyright (c) Huawei Technologies Co., Ltd. 2022-2022. All rights reserved.
  */
-#include "timer.h"
+#include "cast_timer.h"
 #include "cast_engine_log.h"
 
 namespace OHOS {
@@ -15,7 +9,7 @@ namespace CastEngine {
 namespace CastEngineService {
 DEFINE_CAST_ENGINE_LABEL("Cast-Timer");
 
-Timer::~Timer()
+CastTimer::~CastTimer()
 {
     CLOGD("%s In, exit_ = %d.", __FUNCTION__, exit_.load());
     if (exit_.load()) {
@@ -24,10 +18,12 @@ Timer::~Timer()
     Stop();
 }
 
-void Timer::Start(std::function<void()> task, int interval)
+void CastTimer::Start(std::function<void()> task, int interval)
 {
     CLOGD("%s In, exit_ = %d.", __FUNCTION__, exit_.load());
-    std::thread([this, interval, task]() {
+    std::unique_lock<std::mutex> locker(threadMutex_);
+    exit_ = false;
+    workThread_ = std::thread([this, interval, task]() {
         while (!exit_.load()) {
             {
                 // sleep every interval and do the task again and again until times up
@@ -43,15 +39,26 @@ void Timer::Start(std::function<void()> task, int interval)
                 task();
             }
         }
-    }).detach();
+    });
 }
 
-void Timer::Stop()
+void CastTimer::Stop()
 {
     CLOGD("%s In, exit_ = %d.", __FUNCTION__, exit_.load());
+    std::unique_lock<std::mutex> locker(threadMutex_);
     exit_ = true;
-    std::unique_lock<std::mutex> locker(mutex_);
-    cond_.notify_all();
+    {
+        std::unique_lock<std::mutex> locker(mutex_);
+        cond_.notify_all();
+    }
+    if (workThread_.joinable()) {
+        workThread_.join();
+    }
+}
+
+bool CastTimer::IsStopped()
+{
+    return exit_;
 }
 } // namespace CastEngineService
 } // namespace CastEngine
