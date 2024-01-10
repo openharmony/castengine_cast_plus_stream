@@ -1,14 +1,8 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * Copyright (c) Huawei Technologies Co., Ltd. 2022-2022. All rights reserved.
  */
-#ifndef TIMER_H
-#define TIMER_H
+#ifndef CAST_TIMER_H
+#define CAST_TIMER_H
 
 #include <functional>
 #include <chrono>
@@ -21,21 +15,24 @@
 namespace OHOS {
 namespace CastEngine {
 namespace CastEngineService {
-class Timer final {
+class CastTimer final {
 public:
     static constexpr int MILLISECONDS_IN_ONE_SECOND{ 1000 };
-    Timer() = default;
-    ~Timer();
+    CastTimer() = default;
+    ~CastTimer();
     void Start(std::function<void()> task, int interval = MILLISECONDS_IN_ONE_SECOND);
     void Stop();
+    bool IsStopped();
 
 private:
-    std::atomic<bool> exit_{ false };
+    std::atomic<bool> exit_{ true };
     std::mutex mutex_;
+    std::mutex threadMutex_;
+    std::thread workThread_;
     std::condition_variable cond_;
 };
 } // namespace CastEngineService
 } // namespace CastEngine
 } // namespace OHOS
 
-#endif // TIMER_H
+#endif // CAST_TIMER_H

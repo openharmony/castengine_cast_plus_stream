@@ -1,11 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * Copyright (c) Huawei Technologies Co., Ltd. 2023-2023. All rights reserved.
  * Description: Cast local file channel client impl
  * Author: liaoxin
  * Create: 2023-04-20
@@ -28,7 +22,7 @@ namespace CastEngine {
 namespace CastEngineService {
 DEFINE_CAST_ENGINE_LABEL("Cast-Localfile-Client");
 
-static const int CREATE_CHANNEL_TIMEOUT = 10 * 1000;
+static const int CREATE_CHANNEL_TIMEOUT = 100 * 1000;
 
 CastLocalFileChannelClient::CastLocalFileChannelClient(std::shared_ptr<ICastStreamManagerServer> callback)
 {
