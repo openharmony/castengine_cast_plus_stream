@@ -64,5 +64,12 @@ Note:If the text contains special characters, please escape them according to th
                 <policyitem type="copyright" name="Huawei Device Co., Ltd." path=".*" rule="may" group="defaultGroup" filefilter="copyrightPolicyFilter" desc="Developed by Huawei Device"/>
             </policy>
         </policylist>
+        <filefilterlist>
+            <filefilter name="copyrightPolicyFilter" desc="Files not to check">
+                <filteritem type="filepath" name="include/.*" desc=""/>
+                <filteritem type="filepath" name="/.*" desc=""/>
+                <filteritem type="filepath" name="src/.*" desc=""/>
+            </filefilter>
+        </filefilterlist>
     </oatconfig>
 </configuration>
