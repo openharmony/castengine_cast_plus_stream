@@ -18,11 +18,13 @@
 
 #include "cast_local_file_channel_common.h"
 
+#include <charconv>
 #include <cinttypes>
 #include <map>
 #include <optional>
 #include <regex>
 #include <string>
+#include <system_error>
 #include <vector>
 
 #include "cast_engine_common.h"
@@ -202,12 +204,17 @@ int ConvertFileId(const std::string &fileId)
 
 bool ParseStringToInt64(const std::string &str, int64_t &val)
 {
-    errno = 0;
-    val = std::strtoll(str.c_str(), nullptr, DECIMALISM);
-    if (errno == ERANGE) {
+    if (str.empty()) {
         return false;
     }
-
+    int64_t parsed = 0;
+    const char *first = str.data();
+    const char *last = first + str.size();
+    auto [ptr, ec] = std::from_chars(first, last, parsed);
+    if (ec != std::errc() || ptr != last) {
+        return false;
+    }
+    val = parsed;
     return true;
 }
 
